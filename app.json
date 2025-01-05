@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "version": "2.0.8",
+    "name": "gold",
+    "scheme": "gold-app",
+     "slug": "akj",
+    "privacy": "public",
+    "androidStatusBar": {
+      "backgroundColor": "#000"
+    },
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "orientation": "portrait",
+    "icon": "./assets/icon-ios.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.gold.app",
+      "usesAppleSignIn": true,
+      "buildNumber": "1"
+    },
+    "notification": {
+      "iosDisplayInForeground": true,
+      "color": "#D0AD8A",
+      "icon": "./assets/image.png",
+      "androidMode": "default",
+      "androidCollapsedTitle": "gold"
+    },
+    "android": {
+      "versionCode": 1,
+      "package": "com.gold.app",
+      "permissions": []
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8428506b-93d4-47ed-be8f-4f38780ad8b7"
+      }
+    },
+    "owner": "suresh11"
+  }
+}
