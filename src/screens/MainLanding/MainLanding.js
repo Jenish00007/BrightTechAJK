@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, FlatList, ImageBackground, TouchableOpacity } from 'react-native';
+import { View, FlatList, ImageBackground, TouchableOpacity, Text, ScrollView } from 'react-native';
 
 import styles from './styles';
 import GoldPlan from '../../ui/ProductCard/GoldPlans';
-import { BottomTab, TextDefault,   Slider } from '../../components';
-import { Text } from 'react-native';
-import { verticalScale, scale, colors, alignment } from '../../utils';
-import ProductCard from '../../ui/ProductCard/ProductCard';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { BottomTab, TextDefault, Slider } from '../../components';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Image } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { verticalScale, scale, colors, alignment } from '../../utils';
+import ProductCard from '../../ui/ProductCard/ProductCard';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const caroselImage = [
   require('../../assets/images/MainLanding/slide1.jpg'),
@@ -27,10 +25,11 @@ function MainLanding(props) {
 
   const [goldRate, setGoldRate] = useState(null);
   const [silverRate, setSilverRate] = useState(null);
+  const [schemes, setSchemes] = useState([]);
 
   const fetchRates = async () => {
     try {
-      const response = await fetch('http://13.234.113.254:8080/v1/api/account/todayrate');
+      const response = await fetch('https://jerwishtech.site/v1/api/account/todayrate');
       if (!response.ok) {
         throw new Error('Network response was not ok.');
       }
@@ -50,6 +49,26 @@ function MainLanding(props) {
     fetchRates();
   }, []);
 
+
+  // Fetch schemes data
+  useEffect(() => {
+    const fetchSchemes = async () => {
+      try {
+        const response = await fetch('https://jerwishtech.site/v1/api/member/scheme');
+        const data = await response.json();
+        const formattedSchemes = data.map(s => ({
+          schemeId: s.SchemeId,
+          schemeName: s.schemeName,
+        }));
+        setSchemes(formattedSchemes); // Store the formatted schemes
+      } catch (error) {
+        console.error('Error fetching schemes:', error);
+      }
+    };
+
+    fetchSchemes();
+  }, []);
+
   function renderHeader() {
     return (
       <>
@@ -61,10 +80,9 @@ function MainLanding(props) {
             </View>
           </View>
 
-          <TouchableOpacity onPress={() => navigation.navigate('Drawer', { screen: 'noDrawer', params: { screen: 'Login' } })}
-            style={styles.notificationIconWrapper}>
+          {/* <TouchableOpacity onPress={() => navigation.navigate('Drawer', { screen: 'noDrawer', params: { screen: 'Login' } })} style={styles.notificationIconWrapper}>
             <MaterialCommunityIcons color={colors.greenColor} name="account-circle" size={scale(20)} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         <View style={styles.container}>
@@ -74,18 +92,14 @@ function MainLanding(props) {
               <Image source={require('../../assets/gold.png')} style={styles.logo} />
               <View style={{ flexDirection: 'column' }}>
                 <Text style={styles.titlecard}>Gold</Text>
-                <Text style={[styles.subtitle, { alignSelf: 'flex-start' }]}>
-                  {goldRate ? `₹${goldRate}` : 'Loading...'}
-                </Text>
+                <Text style={[styles.subtitle, { alignSelf: 'flex-start' }]}>{goldRate ? `₹${goldRate}` : 'Loading...'}</Text>
               </View>
             </View>
             <View style={styles.card}>
               <Image source={require('../../assets/silver.png')} style={styles.logo} />
               <View style={{ flexDirection: 'column' }}>
                 <Text style={styles.titlecard}>Silver</Text>
-                <Text style={[styles.subtitle, { alignSelf: 'flex-start' }]}>
-                  {silverRate ? `₹${silverRate}` : 'Loading...'}
-                </Text>
+                <Text style={[styles.subtitle, { alignSelf: 'flex-start' }]}>{silverRate ? `₹${silverRate}` : 'Loading...'}</Text>
               </View>
             </View>
           </View>
@@ -98,7 +112,7 @@ function MainLanding(props) {
             {'Your Schemes'}
           </TextDefault>
           <View style={styles.seeAllTextContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate('WhereToGo')}>
+            <TouchableOpacity onPress={() => navigation.navigate('MyScheme')}>
               <TextDefault textColor={colors.greenColor} H5 style={styles.seeAllText}>View All</TextDefault>
             </TouchableOpacity>
           </View>
@@ -110,13 +124,22 @@ function MainLanding(props) {
             {'Gold Plans'}
           </TextDefault>
           <View style={styles.seeAllTextContainer}>
-            <TouchableOpacity onPress={() => navigation.navigate('WhereToGo')}>
+            <TouchableOpacity onPress={() => navigation.navigate('GoldPlanScreen')}>
               <TextDefault textColor={colors.greenColor} H5 style={styles.seeAllText}>View All</TextDefault>
             </TouchableOpacity>
           </View>
-          <GoldPlan styles={styles.itemCardContainer} />
+           {/* Make GoldPlans horizontally scrollable */}
+           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+            {schemes.map((scheme, index) => (
+              <GoldPlan
+                key={index}
+                schemeId={scheme.schemeId}
+                schemeName={scheme.schemeName}
+                styles={styles.itemCardContainer}
+              />
+            ))}
+          </ScrollView>
         </View>
-
       </>
     );
   }
@@ -128,25 +151,13 @@ function MainLanding(props) {
         style={styles.mainBackground}
         imageStyle={styles.backgroundImageStyle}
       >
-
-        <ScrollView
+        <FlatList
           contentContainerStyle={{ paddingBottom: 20 }}
-          nestedScrollEnabled={true}
+          keyExtractor={(item, index) => index.toString()}
           showsVerticalScrollIndicator={false}
-        >
-          <View>
-         
-           
-
-            <FlatList
-              keyExtractor={(item, index) => index.toString()}
-              showsVerticalScrollIndicator={false}
-              numColumns={2}
-              ListHeaderComponent={renderHeader}
-            />
-
-          </View>
-        </ScrollView>
+          numColumns={2}
+          ListHeaderComponent={renderHeader}
+        />
         <BottomTab screen="HOME" />
       </ImageBackground>
     </SafeAreaView>

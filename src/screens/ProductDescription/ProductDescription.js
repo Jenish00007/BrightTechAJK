@@ -1,14 +1,15 @@
 import React from 'react';
 import { View, Text, SafeAreaView, FlatList, StyleSheet,ImageBackground} from 'react-native';
 import { BackHeader } from '../../components';
-import { colors, scale } from '../../utils';
+import { alignment, colors, scale } from '../../utils';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const SchemePassbook = ({ navigation }) => {
   const transactionHistory = [
     { 
+      
       status: 'Completed', 
-      date: '22-Dec-2024', 
+      date: '22-Dec-24', 
       weight: '0.138', 
       amount: '7250'
     }
@@ -24,13 +25,13 @@ const SchemePassbook = ({ navigation }) => {
         <View style={[styles.statusDot, { backgroundColor: item.status === 'Completed' ? '#4CAF50' : '#FFA500' }]} />
 
         {item.status === 'Completed' && (
-            <Icon name="check" size={20} color="green" />
+            <Icon name="check" size={15} color="green" />
           )}
         {/* <Text style={styles.transactionText}>{item.status}</Text> */}
       </View>
       <Text style={styles.transactionText}>{item.date}</Text>
-      <Text style={styles.transactionText}>{item.weight}</Text>
-      <Text style={styles.transactionText}>{item.amount}</Text>
+      <Text style={styles.transactionWText}>{item.weight}</Text>
+      <Text style={styles.transactioninrText}>{item.amount}</Text>
     </View>
   );
 
@@ -47,6 +48,8 @@ const SchemePassbook = ({ navigation }) => {
 
 {/* Info Section */}
 <View style={styles.infoContainer}>
+{/* <View style={styles.headerCard}> */}
+<Text style={styles.schemeTitle}>JEE</Text>
   <View style={styles.infoRow}>
     <View style={styles.infoColumn}>
       <Text style={styles.infoLabel}>Total Amount Paid</Text>
@@ -78,6 +81,7 @@ const SchemePassbook = ({ navigation }) => {
     </View>
   </View>
 </View>
+{/* </View> */}
 
         {/* Transaction History */}
         <View style={styles.transactionContainer}>
@@ -133,27 +137,40 @@ const styles = StyleSheet.create({
   redBox: {
     backgroundColor: '#FF0000', // Bright red
     height: scale(40), // Adjust height as needed
-    borderTopLeftRadius: scale(8),
-    borderTopRightRadius: scale(8),
+    borderTopLeftRadius: scale(15),
+    borderTopRightRadius: scale(15),
   },
   
   infoContainer: {
     backgroundColor: '#FDF6D3', // Light yellow
-    borderBottomLeftRadius: scale(8),
-    borderBottomRightRadius: scale(8),
-    padding: scale(16),
+    borderBottomLeftRadius: scale(15),
+    borderBottomRightRadius: scale(15),
+    // padding: scale(5),
+    ...alignment.PLsmall
   },
   
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: scale(16),
-    gap: scale(16),
+    gap: scale(107),
   },
-  
+  headerCard: {
+    backgroundColor:colors.greenColor,
+    borderRadius: scale(8),
+    padding: scale(16),
+    marginBottom: scale(20),
+  },
+  schemeTitle: {
+    color: colors.lightmaroon,
+    fontSize: scale(24),
+    fontWeight: 'bold',
+    marginBottom: scale(16),
+  },
   infoColumn: {
     flex: 1,
-    marginHorizontal: scale(8),
+    // marginHorizontal: scale(8),
+    justifyContent: "space-between"
   },
   
   infoLabel: {
@@ -172,7 +189,7 @@ const styles = StyleSheet.create({
   transactionContainer: {
     backgroundColor: colors.white,
     borderRadius: scale(8),
-    padding: scale(16),
+    padding: scale(14),
     flex: 1,
   },
   transactionHeader: {
@@ -195,7 +212,7 @@ const styles = StyleSheet.create({
     fontSize: scale(14),
     // flex: 1, 
     // textAlign: 'left',
-    marginHorizontal: scale(50),
+    marginHorizontal: scale(20),
   },
   transactionItem: {
     flexDirection: 'row',
@@ -203,31 +220,33 @@ const styles = StyleSheet.create({
     paddingVertical: scale(12),
     borderBottomWidth: 1,
     borderBottomColor: colors.grayLinesColor,
-    paddingHorizontal: scale(12),
-    borderLeftColor: colors.grayLinesColor,
-    borderLeftWidth: 1,
-    borderRightColor: colors.grayLinesColor,
-    borderRightWidth: 1
+    marginHorizontal: scale(10),
   },
   statusContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
+    marginLeft: 30
   },
-  // statusDot: {
-  //   width: scale(16),
-  //   height: scale(16),
-  //   borderRadius: scale(8),
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
-  //   marginRight: scale(8),
-  // },
   transactionText: {
     fontSize: scale(14),
     color: colors.fontMainColor,
     // flex: 1,
-    marginHorizontal: scale(8),
+    marginHorizontal: scale(14),
   },
+  transactionWText:{
+    fontSize: scale(14),
+    color: colors.fontMainColor,
+     flex: 1,
+    marginRight: 20
+  },
+  transactioninrText:{
+    fontSize: scale(14),
+    color: colors.fontMainColor,
+    // flex: 1,
+    
+  }
+  
 });
 
 export default SchemePassbook;

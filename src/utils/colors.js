@@ -53,6 +53,6 @@ export const colors = {
   darkGrayText: '#9B9B9B',
   grayLinesColor: '#EAEAEA',
   graycolor: '#D3D3D3',
-  lightmaroon: '#B84E4E'
+  lightmaroon: '#363636'
   
 }

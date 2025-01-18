@@ -1,7 +1,9 @@
 import React from 'react'
 import { View, Text, TouchableOpacity } from 'react-native'
-import Ionicons from 'react-native-vector-icons/Ionicons'
+// import { Icon } from 'react-native-vector-icons/Icon'
 import styles from './styles'
+import { MaterialIcons } from '@expo/vector-icons'
+import { colors } from '../../utils'
 
 function BackHeader(props) {
   return (
@@ -13,7 +15,7 @@ function BackHeader(props) {
           style={styles.leftContainer}
           onPress={() => props.backPressed()}>
           <View style={styles.circle}>
-            <Ionicons name="ios-arrow-back" size={28} color="#666" />
+          <MaterialIcons name="chevron-left" size={28} color={colors.black} />
           </View>
         </TouchableOpacity>
         <Text numberOfLines={1} style={styles.headerText}>

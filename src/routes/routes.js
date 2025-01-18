@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
-import navigationService from './navigationService';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createStackNavigator } from '@react-navigation/stack';
 import * as Screen from '../screens';
 
-const NavigationStack = createStackNavigator();
 const MainStack = createStackNavigator();
+const NavigationStack = createStackNavigator();
 
-
-// Navigation Stack for screens without Drawer
+// Navigation Stack for screens inside the Drawer
 function Drawer() {
   return (
     <NavigationStack.Navigator screenOptions={{ headerShown: false }}>
@@ -21,20 +19,43 @@ function Drawer() {
       <NavigationStack.Screen name="HelpCenter" component={Screen.HelpCenterPage} />
       <NavigationStack.Screen name="PrivacyPolicy" component={Screen.PrivacyPolicyPage} />
       <NavigationStack.Screen name="TermsandCondition" component={Screen.TermsConditionsPage} />
+      <NavigationStack.Screen name="AddNewMember" component={Screen.AddNewMember}/>
+      <NavigationStack.Screen name='GoldPlanScreen' component={Screen.GoldPlanScreen}/>
     </NavigationStack.Navigator>
   );
 }
 
-// Main App Container
 function AppContainer() {
- 
+  const [initialRoute, setInitialRoute] = useState(null);
+
+  useEffect(() => {
+    const checkUserState = async () => {
+      try {
+        const isMpinCreated = await AsyncStorage.getItem('isMpinCreated');
+        if (isMpinCreated === 'true') {
+          setInitialRoute('VerifyMpinScreen'); 
+        } else {
+          setInitialRoute('OTP'); 
+        }
+      } catch (error) {
+        console.error('Error checking user state:', error);
+        setInitialRoute('OTP'); 
+      }
+    };
+
+    checkUserState();
+  }, []);
+
+  if (!initialRoute) {
+    return null; 
+  }
 
   return (
-    <NavigationContainer
-      ref={ref => {
-        navigationService.setGlobalRef(ref);
-      }}>
-      <MainStack.Navigator screenOptions={{ headerShown: false }} initialRouteName={ "Drawer"}>
+    <NavigationContainer>
+      <MainStack.Navigator screenOptions={{ headerShown: false }} initialRouteName={initialRoute}>
+      <MainStack.Screen name="OTP" component={Screen.OTP} />
+        <MainStack.Screen name="MpinScreen" component={Screen.MpinScreen} />
+        <MainStack.Screen name="VerifyMpinScreen" component={Screen.VerifyMpinScreen} />
         <MainStack.Screen name="Drawer" component={Drawer} />
       </MainStack.Navigator>
     </NavigationContainer>

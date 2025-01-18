@@ -3,17 +3,13 @@ import { alignment, colors, scale} from '../../utils'
 
 const styles = StyleSheet.create({
   cardContainer: {
-  
-  
     borderRadius: 0, // Optional: Rounded corners
     shadowColor: '#000', // Shadow color for iOS
     shadowOffset: { width: 0, height: 2 }, // Offset for shadow
     shadowOpacity: 0.25, // Opacity of shadow
     shadowRadius: 3.84, // Blur radius for shadow
-    
     padding:5,
     marginBottom: 22,
-  
     backgroundColor: colors.white,
     borderRadius: scale(5),
     elevation: 2,

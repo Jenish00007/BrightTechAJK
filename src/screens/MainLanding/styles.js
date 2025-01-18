@@ -228,7 +228,7 @@ const styles = StyleSheet.create({
   titlecard:{
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'green',
+    color: colors.greenColor,
     marginLeft: 10
   },
 
@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)', 
+    backgroundColor: colors.lightmaroon, 
     borderRadius: 10,
     padding: 20,
     margin: 10,
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   subtitle: {
-    color: 'green',
+    color: colors.greenColor,
     fontSize: 16, // adjust the font size as needed
   },
   logo: {

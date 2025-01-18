@@ -41,24 +41,24 @@ function BottomTab({ screen }) {
           <SimpleLineIcons
             name="badge" // Solid green icon
             size={scale(20)}
-            color={getIconColor('WhereToGo')}
+            color={getIconColor('SCHEMES')}
           />
 
         </View>
-        <Text style={getTextStyle('WhereToGo')}>Schemes</Text>
+        <Text style={getTextStyle('SCHEMES')}>Schemes</Text>
       </TouchableOpacity>
 
       {/* Favourites Icon */}
       <TouchableOpacity
-        onPress={() => navigation.navigate('MyScheme')}
+        onPress={() => navigation.navigate('GoldPlanScreen')}
         style={styles.footerBtnContainer}
       >
         <MaterialCommunityIcons
           name="star"
           size={scale(20)}
-          color={getIconColor('FAVOURITES')}
+          color={getIconColor('GOLDPLANS')}
         />
-        <Text style={getTextStyle('FAVOURITES')}>Gold Plans</Text>
+        <Text style={getTextStyle('GOLDPLANS')}>Gold Plans</Text>
       </TouchableOpacity>
       
      

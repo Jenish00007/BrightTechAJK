@@ -1,10 +1,9 @@
 {
   "expo": {
     "version": "2.0.8",
-    "name": "gold",
+    "name": "AKJ Gold",
     "scheme": "gold-app",
      "slug": "akj",
-    "privacy": "public",
     "androidStatusBar": {
       "backgroundColor": "#000"
     },
@@ -24,7 +23,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.gold.app",
+      "bundleIdentifier": "com.akjgold.app",
       "usesAppleSignIn": true,
       "buildNumber": "1"
     },
@@ -36,8 +35,8 @@
       "androidCollapsedTitle": "gold"
     },
     "android": {
-      "versionCode": 1,
-      "package": "com.gold.app",
+      "versionCode": 2,
+      "package": "com.akjgold.app",
       "permissions": []
     },
     "extra": {

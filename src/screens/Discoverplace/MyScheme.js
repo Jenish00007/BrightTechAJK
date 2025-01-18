@@ -40,7 +40,7 @@ function DiscoverPlace({ navigation }) {
       </ScrollView>
 
       {/* Bottom Navigation */}
-      <BottomTab screen="MyScheme" style={styles.bottomTab} />
+      <BottomTab screen="SCHEMES" style={styles.bottomTab} />
       </ImageBackground>
     </View>
 

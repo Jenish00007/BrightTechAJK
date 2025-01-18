@@ -1,49 +1,54 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { View, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import React from 'react';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { TextDefault } from '../../components';
 import { alignment, colors, scale } from '../../utils';
 
-
 function GoldPlan(props) {
+  const { schemeId, schemeName } = props; // Destructure schemeId and schemeName from props
   const navigation = useNavigation();
 
   return (
     <TouchableOpacity
-      // disabled={loadingMutation}
-      // activeOpacity={0.9}
       onPress={() => navigation.navigate('ProductDescription', { product: props })}
-      style={[styles.cardContainer, props.styles]}>
+      style={[styles.cardContainer, props.styles]}
+    >
       <View style={styles.gradientBackground}>
         {/* Top Section */}
         <View style={styles.topSection}>
-        
           <View style={styles.rightTop}>
-            <TextDefault style={styles.text} bold>DREAM GOLD PLAN</TextDefault>
+            <TextDefault style={styles.text} bold>
+              {schemeName}
+            </TextDefault>
           </View>
-         
         </View>
 
         {/* Center Section */}
         <View style={styles.centerSection}>
-          <TextDefault style={styles.description}>11 PAYMENTS | SAVE AS AMOUNT</TextDefault>
+          <TextDefault style={styles.description}>
+            11 PAYMENTS | SAVE AS AMOUNT
+          </TextDefault>
+          {/* Display Scheme ID and Scheme Name */}
+          {/* <TextDefault style={styles.schemeText}> {schemeId}</TextDefault> */}
+          {/* <TextDefault style={styles.schemeText}>Scheme Name: {schemeName}</TextDefault> */}
         </View>
-        {/* Bottom Section - Align circle and button in a row */}
+
+        {/* Bottom Section */}
         <View style={styles.bottomSection}>
-        <TouchableOpacity
+          <TouchableOpacity
             style={styles.payButton}
-            onPress={() => navigation.navigate('Checkout')}>
+            onPress={() => navigation.navigate('Checkout')}
+          >
             <TextDefault style={styles.payButtonText}>Know More</TextDefault>
           </TouchableOpacity>
 
-          {/* Pay Button */}
           <TouchableOpacity
             style={styles.payButton}
-            onPress={() => navigation.navigate('Checkout')}>
+            onPress={() => navigation.navigate('AddNewMember', { schemeId: schemeId })} // Pass schemeId as route parameter
+          >
             <TextDefault style={styles.payButtonText}>Join Scheme</TextDefault>
           </TouchableOpacity>
         </View>
-        
       </View>
     </TouchableOpacity>
   );
@@ -58,60 +63,52 @@ const styles = StyleSheet.create({
   gradientBackground: {
     backgroundColor: colors.lightmaroon,
     padding: scale(5),
-    borderRadius: scale(15), // Apply the same borderRadius here
+    borderRadius: scale(15),
     overflow: 'hidden',
   },
   topSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: scale(20),
-    ...alignment.Psmall
+    ...alignment.Psmall,
   },
   rightTop: {
     alignItems: 'flex-end',
   },
-  
-  
   centerSection: {
     marginBottom: scale(5),
-    ...alignment.Psmall
-  
+    ...alignment.Psmall,
   },
-  
   bottomSection: {
-    flexDirection: 'row', // Align circle and button horizontally
-    justifyContent: 'space-between', // Push button to the right and circle to the left
-    alignItems: 'center', // Center vertically
-    marginTop: scale(10), // Add some space
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: scale(10),
   },
-  
   payButton: {
-    backgroundColor:colors.white,
-    paddingVertical: scale(8),
-    borderRadius: scale(8),
-    width: scale(130), // Button width
-    alignSelf: 'flex-end', // Align to the right
-    // marginTop: 15
-  
+    backgroundColor: colors.white,
+    paddingVertical: scale(5),
+    paddingHorizontal: scale(10),
+    borderRadius: scale(5),
   },
   text: {
-    color: colors.white,
+    color: colors.greenColor,
     fontSize: scale(12),
   },
-  
-  
   payButtonText: {
-    color: '#000000',
-    fontSize: scale(14),
+    color: colors.black,
+    fontSize: 13,
     fontWeight: 'bold',
-    // alignItems: "center",
-    padding: 5,
-    ...alignment.PLmedium
   },
   description: {
-    color: '#FFFFFF',
+    color: colors.greenColor,
     fontSize: 14,
     marginBottom: 20,
+  },
+  schemeText: {
+    color: colors.greenColor,
+    fontSize: 14,
+    marginTop: 5,
   },
 });
 
