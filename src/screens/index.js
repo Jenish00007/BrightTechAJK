@@ -13,7 +13,7 @@ import { VerifyMpinScreen } from './MpinScreen/MpinScreen'
 import { ImageComponent } from 'react-native'
 import AddNewMember from './AddNewMember/AddNewMember'
 import GoldPlanScreen from './GoldPlanScreen/GoldPlanScreen'
-
+import CheckOut from './CheckOut/CheckOut'
 
 export {
   MainLanding,
@@ -28,5 +28,6 @@ export {
   MpinScreen,
   VerifyMpinScreen,
   AddNewMember,
-  GoldPlanScreen
+  GoldPlanScreen,
+  CheckOut
 }

@@ -94,7 +94,7 @@ function ProductCard(props) {
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.payButton}
-              onPress={() => navigation.navigate('Checkout')}>
+              onPress={() => navigation.navigate('CheckOut')}>
               <TextDefault style={styles.payButtonText}> Pay </TextDefault>
             </TouchableOpacity>
 

@@ -59,8 +59,8 @@ function OTP({ navigation }) {
       Alert.alert('Success', 'OTP verification successful!');
       
       try {
-        await AsyncStorage.setItem('isOtpVerified', 'true'); // Save the OTP verification flag
-        navigation.navigate('MpinScreen', { step: 3 }); // Navigate to MPIN creation screen
+        await AsyncStorage.setItem('isOtpVerified', 'true'); 
+        navigation.navigate('MpinScreen', { step: 3 });
       } catch (error) {
         Alert.alert('Error', 'Failed to save OTP status. Please try again.');
         console.error(error);

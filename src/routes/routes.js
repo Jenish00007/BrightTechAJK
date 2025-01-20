@@ -7,7 +7,7 @@ import * as Screen from '../screens';
 const MainStack = createStackNavigator();
 const NavigationStack = createStackNavigator();
 
-// Navigation Stack for screens inside the Drawer
+
 function Drawer() {
   return (
     <NavigationStack.Navigator screenOptions={{ headerShown: false }}>
@@ -21,6 +21,7 @@ function Drawer() {
       <NavigationStack.Screen name="TermsandCondition" component={Screen.TermsConditionsPage} />
       <NavigationStack.Screen name="AddNewMember" component={Screen.AddNewMember}/>
       <NavigationStack.Screen name='GoldPlanScreen' component={Screen.GoldPlanScreen}/>
+      <NavigationStack.Screen name='CheckOut' component={Screen.CheckOut}/>
     </NavigationStack.Navigator>
   );
 }
