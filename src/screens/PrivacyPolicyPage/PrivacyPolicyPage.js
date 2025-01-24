@@ -9,7 +9,13 @@ const PrivacyPolicyPage = () => {
     source={require("../../assets/bg.jpg")} // Path to your logo
       style={styles.backgroundImage}
       resizeMode="cover" >
-    <ScrollView style={styles.container}>
+
+
+   <View style={styles.overlay}>
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false} // Optional: hides the scroll bar
+        >
       <Text style={styles.title}>Privacy Policy</Text>
 
       <Text style={styles.sectionTitle}>Who We Are</Text>
@@ -73,32 +79,38 @@ const PrivacyPolicyPage = () => {
         Visitor comments may be checked through an automated spam detection service.
       </Text>
     </ScrollView>
+    </View>
     </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  overlay: {
     flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Optional: To make text readable
+  },
+  scrollContent: {
     padding: 16,
+    paddingBottom: 50, // Ensures extra space at the bottom to prevent text from being cut off
   },
   backgroundImage: {
     flex: 1,
-    justifyContent: 'center',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 16,
     textAlign: 'center',
-    color: colors.greenColor
+    color: colors.greenColor,
+    textDecorationLine: 'underline'
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginTop: 16,
     marginBottom: 8,
-    color: colors.greenColor
+    color: colors.greenColor,
+    textDecorationLine: 'underline'
   },
   text: {
     fontSize: 14,

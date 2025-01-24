@@ -14,6 +14,10 @@ import { ImageComponent } from 'react-native'
 import AddNewMember from './AddNewMember/AddNewMember'
 import GoldPlanScreen from './GoldPlanScreen/GoldPlanScreen'
 import CheckOut from './CheckOut/CheckOut'
+import KnowMore from './KnowMore/KnowMore'
+import Buy from './Buy/Buy'
+import EditingProfile from './EditingProfile/EditingProfile'
+
 
 export {
   MainLanding,
@@ -29,5 +33,8 @@ export {
   VerifyMpinScreen,
   AddNewMember,
   GoldPlanScreen,
-  CheckOut
+  CheckOut,
+  KnowMore,
+  Buy,
+  EditingProfile
 }

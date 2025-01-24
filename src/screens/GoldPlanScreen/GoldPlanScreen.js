@@ -4,7 +4,7 @@ import { View, Text, Image, ScrollView, TouchableOpacity,ImageBackground } from 
 
 import BottomTab from '../../components/BottomTab/BottomTab';
 import { BackHeader } from '../../components/Headers/Headers'; // Import BackHeader component
-import { colors, alignment } from '../../utils';
+import { colors, alignment, scale } from '../../utils';
 import GoldPlan from '../../ui/ProductCard/GoldPlans';
 import { StyleSheet } from 'react-native';
 
@@ -23,6 +23,7 @@ function GoldPlanScreen({ navigation }) {
           const formattedSchemes = data.map(s => ({
             schemeId: s.SchemeId,
             schemeName: s.schemeName,
+            description: s.SchemeSName,
           }));
           setSchemes(formattedSchemes); // Store the formatted schemes
         } catch (error) {
@@ -59,6 +60,7 @@ function GoldPlanScreen({ navigation }) {
                 key={index}
                 schemeId={scheme.schemeId}
                 schemeName={scheme.schemeName}
+                description={scheme.description}
                 styles={styles.itemCardContainer}
               />
             ))}
@@ -76,8 +78,8 @@ function GoldPlanScreen({ navigation }) {
 const styles = StyleSheet.create({
     mainBackground: {
         flex: 1,
-        width: '100%',
-        height: '100%',
+        // width: '100%',
+        // height: '100%',
       },
       backgroundImageStyle: {
         opacity: 0.9, // Adjust opacity as needed
@@ -87,8 +89,8 @@ const styles = StyleSheet.create({
         backgroundColor: colors.white,
       },
       scrollContainer: {
-        paddingVertical: 20,
-        padding:20
+        // paddingVertical: 20,
+        // padding:20
       },
        title: {
           ...alignment.PxSmall,
@@ -97,6 +99,11 @@ const styles = StyleSheet.create({
           fontSize: 17, // Ensure the font size is visible enough
           color: colors.greenColor, // Add color for better visibility if needed
       },
+      itemCardContainer: {
+        ...alignment.PRmedium,
+        ...alignment.PLmedium,
+        ...alignment.PBmedium
+      }
 })
 
 export default GoldPlanScreen;

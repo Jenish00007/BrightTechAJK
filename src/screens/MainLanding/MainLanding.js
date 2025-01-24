@@ -1,73 +1,127 @@
-import React, { useState, useEffect } from 'react';
-import { View, FlatList, ImageBackground, TouchableOpacity, Text, ScrollView } from 'react-native';
-
-import styles from './styles';
-import GoldPlan from '../../ui/ProductCard/GoldPlans';
-import { BottomTab, TextDefault, Slider } from '../../components';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import React, { useEffect, useState, useRef } from 'react';
+import { Animated, Image, View, FlatList, Text, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Image } from 'react-native';
-import { verticalScale, scale, colors, alignment } from '../../utils';
+import { BottomTab, TextDefault, Slider } from '../../components';
+import GoldPlan from '../../ui/ProductCard/GoldPlans';
 import ProductCard from '../../ui/ProductCard/ProductCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import styles from './styles';
+import { verticalScale, scale, colors } from '../../utils';
 
-const caroselImage = [
-  require('../../assets/images/MainLanding/slide1.jpg'),
-  require('../../assets/images/MainLanding/slide2.jpg'),
-  require('../../assets/images/MainLanding/slide3.jpg'),
-  require('../../assets/images/MainLanding/slide4.jpg'),
-  require('../../assets/images/MainLanding/slide5.jpg'),
-  require('../../assets/images/MainLanding/slide6.jpg'),
-];
-
-function MainLanding(props) {
+function MainLanding() {
   const navigation = useNavigation();
-
   const [goldRate, setGoldRate] = useState(null);
   const [silverRate, setSilverRate] = useState(null);
   const [schemes, setSchemes] = useState([]);
+  const [rateUpdated, setRateUpdated] = useState(null);
 
+  // Animation values
+  const goldAnimation = useRef(new Animated.Value(0)).current;
+  const silverAnimation = useRef(new Animated.Value(0)).current;
+
+// Create animated styles for coins
+const createAnimatedStyle = (animatedValue) => {
+  const rotateY = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '180deg'],
+  });
+
+  const scale = animatedValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 0.9],
+  });
+
+  const opacity = animatedValue.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [1, 0.5, 1],
+  });
+
+  return {
+    transform: [{ rotateY }, { scale }],
+    opacity,
+  };
+};
+
+// Start animations
+useEffect(() => {
+  const animateGold = Animated.loop(
+    Animated.timing(goldAnimation, {
+      toValue: 1,
+      duration: 2000,
+      useNativeDriver: true,
+    })
+  );
+
+  const animateSilver = Animated.loop(
+    Animated.timing(silverAnimation, {
+      toValue: 1,
+      duration: 2000,
+      useNativeDriver: true,
+    })
+  );
+
+  animateGold.start();
+  setTimeout(() => animateSilver.start(), 1000);
+
+  return () => {
+    goldAnimation.stopAnimation();
+    silverAnimation.stopAnimation();
+  };
+}, []);
+
+
+  // Fetch rates
   const fetchRates = async () => {
     try {
       const response = await fetch('https://jerwishtech.site/v1/api/account/todayrate');
-      if (!response.ok) {
-        throw new Error('Network response was not ok.');
-      }
+      if (!response.ok) throw new Error('Network response was not ok.');
       const data = await response.json();
       if (data) {
-        setGoldRate(data.Rate); // Adjust based on actual response structure
-        setSilverRate(data.SILVERRATE); // Adjust based on actual response structure
-      } else {
-        console.warn('No rates data found.');
+        setGoldRate(data.Rate);
+        setSilverRate(data.SILVERRATE);
+        setRateUpdated(formatDate(new Date()));
       }
     } catch (error) {
       console.error('Error fetching rates:', error);
     }
   };
 
-  useEffect(() => {
-    fetchRates();
-  }, []);
-
-
-  // Fetch schemes data
+  // Fetch schemes
   useEffect(() => {
     const fetchSchemes = async () => {
       try {
         const response = await fetch('https://jerwishtech.site/v1/api/member/scheme');
         const data = await response.json();
-        const formattedSchemes = data.map(s => ({
-          schemeId: s.SchemeId,
-          schemeName: s.schemeName,
-        }));
-        setSchemes(formattedSchemes); // Store the formatted schemes
+        setSchemes(
+          data.map((s) => ({
+            schemeId: s.SchemeId,
+            schemeName: s.schemeName,
+            description: s.SchemeSName,
+          }))
+        );
       } catch (error) {
         console.error('Error fetching schemes:', error);
       }
     };
-
     fetchSchemes();
   }, []);
+
+  useEffect(() => {
+    fetchRates();
+  }, []);
+
+  const formatDate = (date) => {
+    const hours = date.getHours();
+    const minutes = date.getMinutes();
+    const day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+
+    const formattedTime = `${hours > 12 ? hours - 12 : hours}:${minutes < 10 ? '0' + minutes : minutes} ${hours >= 12 ? 'PM' : 'AM'}`;
+    const formattedDate = `${day < 10 ? '0' + day : day}-${month < 10 ? '0' + month : month}-${year}`;
+
+    return `Rate updated on ${formattedTime} ${formattedDate}`;
+  };
 
   function renderHeader() {
     return (
@@ -76,36 +130,54 @@ function MainLanding(props) {
           <View style={styles.locationWrapper}>
             <View style={styles.locationContainer}>
               <Image source={require('../../assets/logo.jpg')} style={styles.locationImage} />
-              <TextDefault style={styles.title} H4 bold>AKJ Gold </TextDefault>
+              <TextDefault style={styles.title} H4 bold>
+                AKJ Gold
+              </TextDefault>
             </View>
           </View>
-
-          {/* <TouchableOpacity onPress={() => navigation.navigate('Drawer', { screen: 'noDrawer', params: { screen: 'Login' } })} style={styles.notificationIconWrapper}>
-            <MaterialCommunityIcons color={colors.greenColor} name="account-circle" size={scale(20)} />
-          </TouchableOpacity> */}
         </View>
 
         <View style={styles.container}>
           <Text style={styles.title}>Gold & Silver Rate</Text>
+          {rateUpdated && <Text style={styles.rateUpdatedText}>{rateUpdated}</Text>}
+
           <View style={styles.trendingContainer}>
             <View style={styles.card}>
-              <Image source={require('../../assets/gold.png')} style={styles.logo} />
+              <Animated.View style={[styles.animatedContainer, createAnimatedStyle(goldAnimation)]}>
+                <Image source={require('../../assets/gold.png')} style={styles.logo} resizeMode="contain" />
+              </Animated.View>
               <View style={{ flexDirection: 'column' }}>
                 <Text style={styles.titlecard}>Gold</Text>
-                <Text style={[styles.subtitle, { alignSelf: 'flex-start' }]}>{goldRate ? `₹${goldRate}` : 'Loading...'}</Text>
+                <Text style={[styles.subtitle, { alignSelf: 'flex-start' }]}>
+                  {goldRate ? `₹${goldRate}` : 'Loading...'}
+                </Text>
+                <Text style={styles.subtitle1}>22KT Per gram</Text>
               </View>
             </View>
+
             <View style={styles.card}>
-              <Image source={require('../../assets/silver.png')} style={styles.logo} />
+              <Animated.View style={[styles.animatedContainer, createAnimatedStyle(silverAnimation)]}>
+                <Image source={require('../../assets/silver.png')} style={styles.logo} resizeMode="contain" />
+              </Animated.View>
               <View style={{ flexDirection: 'column' }}>
                 <Text style={styles.titlecard}>Silver</Text>
-                <Text style={[styles.subtitle, { alignSelf: 'flex-start' }]}>{silverRate ? `₹${silverRate}` : 'Loading...'}</Text>
+                <Text style={[styles.subtitle, { alignSelf: 'flex-start' }]}>
+                  {silverRate ? `₹${silverRate}` : 'Loading...'}
+                </Text>
+                <Text style={styles.subtitle1}>Per gram</Text>
               </View>
             </View>
           </View>
         </View>
 
         <Slider />
+
+        <View style={styles.contentWrapper}>
+          <Text style={styles.contentText}>
+            Welcome to the Digital home of AKJ Jewellers:
+          </Text>
+          <Text style={styles.contentText1}>The ideal place to join a savings scheme and save up to buy your dream jewels. AKJ DIGIGOLD empowers you to save and buy jewels conveniently in the plan of your hand. Start saving in gold from today.</Text>
+        </View>
 
         <View style={styles.titleSpacer}>
           <TextDefault textColor={colors.greenColor} H5 bold>
@@ -119,6 +191,13 @@ function MainLanding(props) {
           <ProductCard styles={styles.itemCardContainer} />
         </View>
 
+        <View style={styles.contentWrapper}>
+          <Text style={styles.contentText}>
+            Customized Gold Plans for You:
+          </Text>
+          <Text style={styles.contentText1}>Choose from a range of Gold Plans with unique benefits to suit your needs and convenience.</Text>
+        </View>
+
         <View style={styles.titleSpacer}>
           <TextDefault textColor={colors.greenColor} H5 bold>
             {'Gold Plans'}
@@ -128,13 +207,13 @@ function MainLanding(props) {
               <TextDefault textColor={colors.greenColor} H5 style={styles.seeAllText}>View All</TextDefault>
             </TouchableOpacity>
           </View>
-           {/* Make GoldPlans horizontally scrollable */}
-           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             {schemes.map((scheme, index) => (
               <GoldPlan
                 key={index}
                 schemeId={scheme.schemeId}
                 schemeName={scheme.schemeName}
+                description={scheme.description}
                 styles={styles.itemCardContainer}
               />
             ))}

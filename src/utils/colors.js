@@ -44,7 +44,7 @@ export const colors = {
   lightBlueColor: '#6178DE',
   pinkColor: '#F48B98',
   textBlueColor: '#6178DE',
-  greenTextColor: '#8CB65E',
+  greenTextColor: '#27ae60',
   yellow: '#FFFF00',
   lightyellow: '#FFFFE0',
   lightblue: '#ADD8E6',

@@ -26,7 +26,7 @@ export default {
     justifyContent: 'center',
     alignItems: 'center',
     position: 'absolute', // Ensures it doesn't affect the layout
-    left: 0, // Stays pinned to the left
+    // left: -10, // Stays pinned to the left
   },
   headerText: {
 

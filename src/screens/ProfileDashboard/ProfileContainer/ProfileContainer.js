@@ -60,7 +60,8 @@ function ProfileContainer(props) {
 
         {/* Settings Options */}
         <View style={styles.settingsSection} H5>
-          {[
+          {[ 
+            { label: 'Your Profile', icon: 'account-circle', route: 'EditingProfile' }, // Updated to 'user' icon from FontAwesome
             { label: 'Delete', icon: 'delete', route: 'DeleteButton' },
             { label: 'My Scheme', icon: 'list', route: 'MyScheme' },
             { label: 'Help Center', icon: 'help', route: 'HelpCenter' },
