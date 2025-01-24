@@ -179,7 +179,7 @@ function VerifyMpinScreen({ navigation }) {
           ))}
         </View>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('OTP')}>
           <TextDefault style={styles.forgotText}>Forgot MPIN</TextDefault>
         </TouchableOpacity>
         
@@ -285,11 +285,12 @@ const styles = StyleSheet.create({
     marginBottom: -10,
   },
   forgotText: {
-    color: colors.fontMainColor,
+    color: colors.textBlueColor,
     ...alignment.MTmedium,
     fontSize: 14,
     marginBottom: 80,
     ...alignment.Plarge,
+    textDecorationLine: 'underline'
   },
   buttonText: {
     color: colors.fontMainColor,

@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: colors.greenColor,
-    marginLeft: 10
+    marginLeft: '5%',
   },
 
   trendingContainer: {
@@ -249,6 +249,12 @@ const styles = StyleSheet.create({
   subtitle: {
     color: colors.greenColor,
     fontSize: 16, // adjust the font size as needed
+    marginLeft: '5%',
+  },
+  subtitle1: {
+    color: colors.greenColor,
+    fontSize: 14, // adjust the font size as needed
+    marginLeft: '5%',
   },
   logo: {
     width: 30,
@@ -261,6 +267,39 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  rateUpdatedText: {
+    fontSize: 16,
+    color: colors.greenColor, // Adjust as needed
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  contentWrapper: {
+    marginHorizontal: scale(20),
+    marginTop: verticalScale(10),
+    paddingVertical: verticalScale(10),
+    backgroundColor: colors.lightGray, // Light background for emphasis
+    borderRadius: scale(10),
+  },
+  contentText: {
+    color: colors.greenColor, // Text color
+    fontSize: scale(14),
+    fontWeight: 'bold',
+    marginVertical: verticalScale(10),
+    // marginLeft: 4,
+    textAlign: 'left'
+  },
+  contentText1: {
+    color: colors.greenColor, // Text color
+    fontSize: scale(12),
+    // marginLeft: 4
+  },
+  animatedContainer: {
+    height: 40,
+    width: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10
+  }
   
 })
 export default styles

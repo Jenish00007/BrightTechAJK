@@ -9,6 +9,8 @@ import * as Print from 'expo-print';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRoute } from '@react-navigation/native'; 
 import { colors, alignment } from '../../utils';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { BackHeader } from '../../components';
 
 const AddNewMember = () => {
     const [currentStep, setCurrentStep] = useState(1);
@@ -28,8 +30,9 @@ const AddNewMember = () => {
     const [area, setArea] = useState('');
     const [city, setCity] = useState('');
     const [pincode, setPincode] = useState('');
+    const [selectedState, setSelectedState] = useState('');
     const [state, setState] = useState('');
-    const [country, setCountry] = useState('');
+    const [country, setCountry] = useState('India');
     const [mobile, setMobile] = useState('');
     // const [dob, setDob] = useState('');
     const [email, setEmail] = useState('');
@@ -49,14 +52,29 @@ const AddNewMember = () => {
       const [isSubmitting, setIsSubmitting] = useState(false);
       const [companyData, setCompanyData] = useState(null);
 
+      const handleBack = () => {
+        navigation.navigate('MainLanding'); // Navigate to ManLanding page
+      };
+
+      const states = [
+        'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa', 
+        'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala', 
+        'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 
+        'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 
+        'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 'Andaman and Nicobar Islands', 
+        'Chandigarh', 'Dadra and Nagar Haveli and Daman and Diu', 'Lakshadweep', 
+        'Delhi', 'Puducherry'
+      ];
+
       const route = useRoute(); // Get route parameters
       const { schemeId } = route.params || {};
 
       useEffect(() => {
         if (schemeId) {
-          console.log(`Scheme ID ${schemeId} successfully passed.`);
+            setSelectedSchemeId(schemeId); // Set the selected scheme ID from route
         }
-      }, [schemeId]); // Log the message whenever schemeId changes
+    }, [schemeId]);
+     // Log the message whenever schemeId changes
     
 
     // Fetch schemes when the component mounts
@@ -69,6 +87,7 @@ const AddNewMember = () => {
                 const formattedSchemes = data.map(s => ({
                     id: s.SchemeId,
                     name: s.schemeName,
+                    description: s.SchemeSName,
                 }));
                 setSchemes(formattedSchemes);
             } catch (error) {
@@ -117,37 +136,102 @@ const AddNewMember = () => {
 
     // Fetch amounts when a scheme is selected
     useEffect(() => {
-
         const fetchAmount = async (schemeId) => {
-            if (!schemeId) return; // Prevent fetching if no schemeId
-            console.log(schemeId)
+            if (!schemeId) return;
+            console.log('Fetching amounts for schemeId:', schemeId);
+    
+            setLoading(true);
+    
             try {
                 const response = await fetch(`https://jerwishtech.site/v1/api/member/schemeid?schemeId=${schemeId}`);
                 const data = await response.json();
-                // Map the API response to the desired format
+    
+                if (data.length === 0) {
+                    console.warn(`No data returned for schemeId: ${schemeId}`);
+                    setAmounts([]); // Clear amounts if no data is returned
+                    setAmount(''); // Reset amount
+                    return;
+                }
+    
+                console.log('Fetched amounts data:', data);
+    
                 const mappedAmounts = data.map(item => ({
                     label: item.GROUPCODE,
                     value: item.AMOUNT,
-                    groupCode: item.GROUPCODE, 
+                    groupCode: item.GROUPCODE,
                     currentRegNo: item.CURRENTREGNO,
                 }));
-
+    
                 setAmounts(mappedAmounts);
-                setAmount(''); // Reset amount on scheme change
+                setAmount(mappedAmounts[0]?.value || ''); // Default to the first amount if available
+                setSelectedGroupcodeObj(mappedAmounts[0]?.groupCode || '');
+                setSelectedCurrentRegObj(mappedAmounts[0]?.currentRegNo || '');
             } catch (error) {
                 console.error('Error fetching amounts:', error);
+            } finally {
+                setLoading(false);
             }
         };
-
+    
         if (selectedSchemeId) {
             fetchAmount(selectedSchemeId);
         }
-        setLoading(false);
     }, [selectedSchemeId]);
+    
 
     const handleSubmit = async () => {
-        if (isSubmitting) return; 
+        if (isSubmitting) {
+            console.log('Form is already submitting...');
+            return; // Prevent duplicate submissions
+        }
+    
+        // Start submitting state
         setIsSubmitting(true);
+    
+        // Mobile number validation (check if it's a valid 10-digit number)
+        if (!/^\d{10}$/.test(mobile)) {
+            console.log('Invalid mobile number:', mobile);
+            alert('Please enter a valid mobile number.');
+            setIsSubmitting(false); // Stop submitting state
+            return;
+        }
+    
+        // Email validation (check if email contains '@' symbol)
+        if (!email.includes('@')) {
+            alert('Email should contain "@" symbol.');
+            setIsSubmitting(false); // Stop submitting state
+            return;
+        }
+    
+        // PAN number validation (matches the format of PAN card)
+        if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(panNumber)) {
+            alert('PAN number should be 10 characters long.');
+            setIsSubmitting(false); // Stop submitting state
+            return;
+        }
+    
+        // Aadhaar validation (must be a 12-digit number)
+        if (!/^\d{12}$/.test(aadharNumber)) {
+            alert('Aadhaar number should be 12 digits long.');
+            setIsSubmitting(false); // Stop submitting state
+            return;
+        }
+    
+        // Country validation (ensure country is India)
+        if (country !== 'India') {
+            alert('Country should be India.');
+            setIsSubmitting(false); // Stop submitting state
+            return;
+        }
+    
+        // // City validation (check if city is valid from the list of cities)
+        // if (cities.length === 0 || !cities.includes(city)) {
+        //     alert('Please select a valid city from the list of cities for the given pincode.');
+        //     setIsSubmitting(false); // Stop submitting state
+        //     return;
+        // }
+    
+        // Prepare the request body
         const newMember = {
             title: namePrefix,
             initial,
@@ -170,7 +254,7 @@ const AddNewMember = () => {
             userId: '999', // Replace with dynamic user ID if available
             appVer: '19.12.10.1', // Example app version
         };
-
+    
         const createSchemeSummary = {
             schemeId: selectedSchemeId,
             groupCode: selectedGroupcodetObj,
@@ -180,68 +264,80 @@ const AddNewMember = () => {
             openingDate: new Date().toISOString().slice(0, 19).replace('T', ' '),
             userId2: '9999',
         };
+    
         const schemeCollectInsert = {
             amount: amount,
             modePay: modePay,
             accCode: accCode
         };
-
+    
         const requestBody = {
             newMember,
             createSchemeSummary,
             schemeCollectInsert
         };
-
-        console.log(newMember, 'kkkkkkkkkkk')
+    
         try {
+            console.log('Request body:', requestBody); // Debugging log
+    
             const response = await fetch('https://jerwishtech.site/v1/api/member/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(requestBody),
-
             });
-            console.log(response, requestBody);
+    
+            console.log('API response status:', response.status);
+    
             if (!response.ok) {
                 throw new Error('Error creating member: ' + response.statusText);
             }
-            // await generateAndDownloadPDF();
+    
+            // await generateAndDownloadPDF(); // Assuming PDF generation is part of success workflow
+    
             alert('Member added successfully!');
-            // Clear all input values
-            setScheme('');
-            setSelectedGroupcodeObj(null);
-            setSelectedCurrentRegObj(null);
-            setInitial('');
-            setName('');
-            setSurname('');
-            setDoorNo('');
-            setAddress1('');
-            setAddress2('');
-            setArea('');
-            setCity('');
-            setState('');
-            setCountry('');
-            setPincode('');
-            setMobile('');
-            setDob('');
-            setEmail('');
-            setPanNumber('');
-            setAadharNumber('');
-            setAmounts([]); // Reset amounts array
-            setAmount(''); // Reset amount
-            setAccCode(''); // Reset accCode
-            setModepay('C'); // Reset modePay to default
-            setSelectedSchemeId(null); // Reset selectedSchemeId
-
-            navigation.navigate('MpinScreen');
+            // Clear all input values after successful submission
+            resetFormFields();
+            navigation.navigate('VerifyMpinScreen'); // Navigate to MpinScreen after successful submission
+    
         } catch (error) {
-            alert(error.message);
+            console.error('Error:', error);
+            alert(error.message); // Display the error message
         } finally {
-            setIsSubmitting(false); // Stop loading regardless of outcome
+            setIsSubmitting(false); // Stop submitting state regardless of outcome
         }
     };
-
+    
+    // Function to reset form fields after successful submission
+    const resetFormFields = () => {
+        setScheme('');
+        setSelectedGroupcodeObj(null);
+        setSelectedCurrentRegObj(null);
+        setInitial('');
+        setName('');
+        setSurname('');
+        setDoorNo('');
+        setAddress1('');
+        setAddress2('');
+        setArea('');
+        setCity('');
+        setState('');
+        setCountry('');
+        setPincode('');
+        setMobile('');
+        setDob('');
+        setEmail('');
+        setPanNumber('');
+        setAadharNumber('');
+        setAmounts([]); // Reset amounts array
+        setAmount(''); // Reset amount
+        setAccCode(''); // Reset accCode
+        setModepay('C'); // Reset modePay to default
+        setSelectedSchemeId(null); // Reset selectedSchemeId
+    };
+    
+    
     const generateBillData = () => {
         console.log('generateBillData')
         const currentDateTime = new Date();
@@ -385,14 +481,14 @@ const AddNewMember = () => {
         }
     };
 
-    useEffect(() => {
-        // Automatically select the first scheme when the page loads (if schemes are available)
-        if (schemes.length > 0) {
-            const defaultSchemeId = schemes[0].id; // Select the first scheme in the list
-            setSelectedSchemeId(defaultSchemeId); // This will trigger the useEffect that fetches the amounts
-        }
-        console.log(amount, '...............')
-    }, [schemes]); // This runs when schemes are fetched or updated
+    // useEffect(() => {
+    //     // Automatically select the first scheme when the page loads (if schemes are available)
+    //     if (schemes.length > 0) {
+    //         const defaultSchemeId = schemes[0].id; // Select the first scheme in the list
+    //         setSelectedSchemeId(defaultSchemeId); // This will trigger the useEffect that fetches the amounts
+    //     }
+    //     console.log(amount, '...............')
+    // }, [schemes]); // This runs when schemes are fetched or updated
 
    // Update the date picker handling
    const handleDateChange = (event, selectedDate) => {
@@ -424,16 +520,21 @@ const showPicker = () => {
     const renderDatePicker = () => {
         return (
             <View>
-                <Text style={styles.label}>Date of Birth</Text>
-                <TouchableOpacity 
-                    onPress={showPicker} 
-                    style={[styles.input, styles.dateInput]}
-                >
-                    <Text style={dateText === 'Select Date' ? styles.placeholderText : styles.dateText}>
-                        {dateText}
-                    </Text>
-                </TouchableOpacity>
-
+                <Text style={styles.label}>
+                    Date of Birth <Text style={styles.asterisk}>*</Text>
+                </Text>
+                
+                <View style={styles.pickerWrapper}>
+                    <TouchableOpacity 
+                        onPress={showPicker} 
+                        style={styles.dateInput}
+                    >
+                        <Text style={dateText === 'Select Date' ? styles.placeholderText : styles.dateText}>
+                            {dateText}
+                        </Text>
+                    </TouchableOpacity>
+                </View>
+    
                 {showDatePicker && (
                     <DateTimePicker
                         testID="dateTimePicker"
@@ -449,148 +550,177 @@ const showPicker = () => {
         );
     };
 
+    
+
+    
+    
     const renderStep = () => {
         switch (currentStep) {
             case 1:
                 return (
+
+                    
                     <View style={{ marginBottom: 100 }}>
-                        <Text style={styles.label}>Member Details</Text>
+                        <BackHeader 
+        title="Member Details"
+        backPressed={() => navigation.goBack()}
+      />
+                        {/* <Text style={styles.title}>Member Details</Text> */}
                         
-      {schemeId && (
+      {/* {schemeId && (
         <Text style={styles.schemeText}>Selected Scheme ID: {schemeId}</Text>
-      )}
-                        <Text style={styles.label}>Initial</Text>
+      )} */}
+                        <Text style={styles.label}>Initial  <Text style={styles.asterisk}>*</Text></Text>
+                        <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.input}
                             onChangeText={setInitial}
                             value={initial}
                             placeholder="Enter Initial"
-                        />
-                        <Text style={styles.label}>First Name</Text>
+                        /></View>
+                        <Text style={styles.label}>First Name <Text style={styles.asterisk}>*</Text></Text>
+                        <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.input}
                             onChangeText={setName}
                             value={name}
                             placeholder="Enter First Name"
-                        />
-                        <Text style={styles.label}>Surname</Text>
+                        /></View>
+                        <Text style={styles.label}>Surname <Text style={styles.asterisk}>*</Text></Text>
+                        <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.input}
                             onChangeText={setSurname}
                             value={surname}
                             placeholder="Enter Surname"
-                        />
-                        <Text style={styles.label}>Door No</Text>
+                        /></View>
+                        <Text style={styles.label}>Door No <Text style={styles.asterisk}>*</Text></Text>
+                        <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.input}
                             onChangeText={setDoorNo}
                             value={doorNo}
                             placeholder="Enter Door No"
-                        />
-                        <Text style={styles.label}>Address 1</Text>
+                        /></View>
+                        <Text style={styles.label}>Address 1 <Text style={styles.asterisk}>*</Text></Text>
+                        <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.input}
                             onChangeText={setAddress1}
                             value={address1}
                             placeholder="Enter Address 1"
-                        />
+                        /></View>
                         <Text style={styles.label}>Address 2</Text>
+                        <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.input}
                             onChangeText={setAddress2}
                             value={address2}
                             placeholder="Enter Address 2"
-                        />
-                        <Text style={styles.label}>Area</Text>
+                        /></View>
+                        <Text style={styles.label}>Area <Text style={styles.asterisk}>*</Text></Text>
+                        <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.input}
                             onChangeText={setArea}
                             value={area}
                             placeholder="Enter Area"
-                        />
-                        <Text style={styles.label}>City</Text>
+                        /></View>
+                        <Text style={styles.label}>City <Text style={styles.asterisk}>*</Text></Text>
+                        <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.input}
                             onChangeText={setCity}
                             value={city}
                             placeholder="Enter City"
-                        />
-                        <Text style={styles.label}>State</Text>
-                        <TextInput
-                            style={styles.input}
-                            onChangeText={setState}
-                            value={state}
-                            placeholder="Enter State"
-                        />
-                        <Text style={styles.label}>Country</Text>
+                        /></View>
+                       {/* Replace the TextInput for State with the Picker */}
+                    <Text style={styles.label}>State <Text style={styles.asterisk}>*</Text></Text>
+                    <View style={styles.pickerWrapper}>
+                        <Picker
+                            selectedValue={selectedState}
+                            onValueChange={(itemValue) => setSelectedState(itemValue)}
+                            style={{ height: 50, width: 350 }}
+                        >
+                            <Picker.Item label="Select a State" value="" />
+                            {states.map((state, index) => (
+                                <Picker.Item key={index} label={state} value={state} />
+                            ))}
+                        </Picker>
+                    </View>
+                        <Text style={styles.label}>Country <Text style={styles.asterisk}>*</Text></Text>
+                        <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.input}
                             onChangeText={setCountry}
                             value={country}
                             placeholder="Enter Country"
-                        />
-                        <Text style={styles.label}>Pincode</Text>
+                        /></View>
+                        <Text style={styles.label}>Pincode <Text style={styles.asterisk}>*</Text></Text>
+                        <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.input}
                             onChangeText={setPincode}
                             value={pincode}
                             placeholder="Enter Pincode"
                             keyboardType="numeric"
-                        />
-                        <Text style={styles.label}>Mobile Number</Text>
+                        /></View>
+                        <Text style={styles.label}>Mobile Number <Text style={styles.asterisk}>*</Text></Text>
+                        <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.input}
                             onChangeText={setMobile}
                             value={mobile}
                             placeholder="Enter Mobile Number"
                             keyboardType="numeric"
-                        />
+                        /></View>
                         {renderDatePicker()}
-                        <Text style={styles.label}>Email</Text>
+                        <Text style={styles.label}>Email <Text style={styles.asterisk}>*</Text></Text>
+                        <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.input}
                             onChangeText={setEmail}
                             value={email}
                             placeholder="Enter Email"
-                        />
-                        <Text style={styles.label}>PAN Number</Text>
+                        /></View>
+                        <Text style={styles.label}>PAN Number <Text style={styles.asterisk}>*</Text></Text>
+                        <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.input}
                             onChangeText={setPanNumber}
                             value={panNumber}
                             placeholder="Enter PAN Number"
-                        />
-                        <Text style={styles.label}>Aadhaar Number</Text>
+                        /></View>
+                        <Text style={styles.label}>Aadhaar Number <Text style={styles.asterisk}>*</Text></Text>
+                        <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.input}
                             onChangeText={setAadharNumber}
                             value={aadharNumber}
                             placeholder="Enter Aadhaar Number"
                             keyboardType="numeric"
-                        />
-                        <TouchableOpacity style={styles.button} onPress={() => setCurrentStep(2)}>
-                            <Text style={styles.buttonText}>Next</Text>
-                        </TouchableOpacity>
+                        /></View>
+                        {/* Back and Next Buttons */}
+      <View style={styles.buttonRow}>
+        <TouchableOpacity style={[styles.button, styles.backButton]} onPress={handleBack}>
+          <Text style={styles.buttonText}>Back</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.button, styles.nextButton]} onPress={() => setCurrentStep(2)}>
+          <Text style={styles.buttonText}>Next</Text>
+        </TouchableOpacity>
+      </View>
                     </View>
                 );
             case 2:
                 return (
                     <>
                         <Text style={styles.label}>Scheme Selection</Text>
-                        <View style={styles.pickerWrapper}>
-                            <Picker
-                                selectedValue={selectedSchemeId}
-                                onValueChange={itemValue => {
-                                    setSelectedSchemeId(itemValue);
-                                    setScheme(itemValue); // Set scheme name or identifier
-                                }}
-                                style={styles.picker}
-                            >
-                                {schemes.map((s, index) => (
-                                    <Picker.Item key={index} label={s.name} value={s.id} />
-                                ))}
-                            </Picker>
-                        </View>
+                        <View style={[styles.inputWrapper, { justifyContent: 'center' }]}>
+    <Text style={[styles.input, { textAlignVertical: 'center', textAlign: 'left', paddingVertical: 0 }]}>
+        {schemes.find(s => s.id === selectedSchemeId)?.name || "No scheme selected"}
+    </Text>
+</View>
+
 
                         <Text style={styles.label}>Amount</Text>
                         <View style={styles.pickerWrapper}>
@@ -619,7 +749,7 @@ const showPicker = () => {
                         </View>
 
                         <View style={styles.inputRow}>
-                            <View style={styles.inputWrapper}>
+                            {/* <View style={styles.inputWrapper}> */}
                                 <Text style={styles.label}>Payment Mode</Text>
                                 <View style={styles.pickerWrapper}>
 
@@ -645,32 +775,35 @@ const showPicker = () => {
                                         ))}
                                     </Picker>
                                 </View>
-                            </View>
+                            {/* </View> */}
                         </View>
-                        <TouchableOpacity 
-                            style={[styles.button, isSubmitting && styles.buttonDisabled]}
-                            onPress={handleSubmit}
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? (
-                                <View style={styles.loadingContainer}>
-                                    <ActivityIndicator color="#fff" />
-                                    <Text style={[styles.buttonText, styles.loadingText]}>
-                                        Submitting...
-                                    </Text>
-                                </View>
-                            ) : (
-                                <Text style={styles.buttonText}>Submit</Text>
-                            )}
-                        </TouchableOpacity>
+                        <View style={styles.buttonRow}>
+    <TouchableOpacity 
+        style={[styles.button, isSubmitting && styles.buttonDisabled]}
+        onPress={handleSubmit}
+        disabled={isSubmitting}
+    >
+        {isSubmitting ? (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator color="#fff" />
+                <Text style={[styles.buttonText, styles.loadingText]}>
+                    Submitting...
+                </Text>
+            </View>
+        ) : (
+            <Text style={styles.buttonText}>Submit</Text>
+        )}
+    </TouchableOpacity>
 
-                        <TouchableOpacity 
-                            style={[styles.button, isSubmitting && styles.buttonDisabled]}
-                            onPress={() => setCurrentStep(1)}
-                            disabled={isSubmitting}
-                        >
-                            <Text style={styles.buttonText}>Back</Text>
-                        </TouchableOpacity>
+    <TouchableOpacity 
+        style={[styles.button, isSubmitting && styles.buttonDisabled]}
+        onPress={() => setCurrentStep(1)}
+        disabled={isSubmitting}
+    >
+        <Text style={styles.buttonText}>Back</Text>
+    </TouchableOpacity>
+</View>
+
                     </>
                 );
             default:
@@ -689,45 +822,78 @@ const showPicker = () => {
 const styles = StyleSheet.create({
     container: {
         padding: 20,
-        backgroundColor: '#f0f0f0',
+        backgroundColor: colors.white
     },
     label: {
         fontSize: 16,
         marginBottom: 5,
     },
-    input: {
-        height: 40,
-        borderColor: '#ccc',
-        borderWidth: 1,
-        borderRadius: 5,
-        paddingHorizontal: 10,
+    title: {
+        fontSize: 16,
+        justifyContent: 'center',
+        alignSelf: 'center',
+        fontWeight: 'bold'
+    },
+    inputWrapper: {
+        backgroundColor: colors.white, // Background color for the shadow to appear
+        borderRadius: 10,
+        elevation: 6, // Shadow for Android
+        shadowColor: colors.greenColor, // Shadow for iOS
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
         marginBottom: 15,
     },
+    input: {
+        height: 60,
+        borderColor: colors.greenColor,
+        borderWidth: 1,
+        borderRadius: 10,
+        paddingHorizontal: 10,
+        backgroundColor: colors.white, // Keep the background consistent
+        
+    },
     picker: {
-        height: 40,
+        height: 60,
         width: '100%',
         marginBottom: 15,
     },
     pickerWrapper: {
-        height: 40,
-        borderColor: '#ccc',
+        height: 60,
+        borderColor: colors.greenColor,
         borderWidth: 1,
-        borderRadius: 5,
+        borderRadius: 10,
         justifyContent: 'center',
         paddingHorizontal: 10,
         marginBottom: 15,
+        backgroundColor: colors.white,
+        elevation: 6,
+        shadowColor: colors.greenColor,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 6,
     },
+    buttonRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 20,
+      },
     button: {
-        backgroundColor: Color.blue,
-        padding: 10,
-        borderRadius: 5,
-        alignItems: 'center',
-        marginTop: 10,
-        minHeight: 44,
+        backgroundColor: colors.greenColor,
+        flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginHorizontal: 5,
+    height: 60,
+    padding: 20,
+     justifyContent: 'center',
+        alignSelf: 'center'
     },
     buttonText: {
-        color:colors.greenColor,
+        color:colors.fontMainColor,
         fontSize: 16,
+        fontWeight: 'bold'
     },
     loadingContainer: {
         flexDirection: 'row',
@@ -747,9 +913,14 @@ const styles = StyleSheet.create({
         color: colors.black,
       },
       schemeText: {
-        marginTop: 20,
         fontSize: 16,
         color: colors.greenColor,
+        marginTop: -10,
+        ...alignment.PxSmall
+      },
+      asterisk: {
+        color: 'red',
+        fontSize: 16,
       },
 });
 

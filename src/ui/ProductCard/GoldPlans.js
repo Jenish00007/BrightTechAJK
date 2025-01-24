@@ -5,12 +5,26 @@ import { TextDefault } from '../../components';
 import { alignment, colors, scale } from '../../utils';
 
 function GoldPlan(props) {
-  const { schemeId, schemeName } = props; // Destructure schemeId and schemeName from props
+  const { schemeId, schemeName, description = 'No description available'  } = props; // Destructure schemeId and schemeName from props
   const navigation = useNavigation();
+
+ const handleNavigation = () => {
+  const normalizedSchemeName = schemeName.trim(); // Remove any leading/trailing spaces
+  console.log('Normalized Scheme Name:', normalizedSchemeName); // Log the normalized value
+  if (normalizedSchemeName === 'DREAM GOLD PLAN') {
+    navigation.navigate('ProductDescription', { product: props });
+  } else if (normalizedSchemeName === 'DIGI GOLD') {
+    navigation.navigate('Buy', { schemeId: schemeId });
+  } else {
+    console.log('Unhandled schemeName:', normalizedSchemeName);
+  }
+};
+
+  
 
   return (
     <TouchableOpacity
-      onPress={() => navigation.navigate('ProductDescription', { product: props })}
+      onPress={handleNavigation}
       style={[styles.cardContainer, props.styles]}
     >
       <View style={styles.gradientBackground}>
@@ -26,7 +40,7 @@ function GoldPlan(props) {
         {/* Center Section */}
         <View style={styles.centerSection}>
           <TextDefault style={styles.description}>
-            11 PAYMENTS | SAVE AS AMOUNT
+          {description} 
           </TextDefault>
           {/* Display Scheme ID and Scheme Name */}
           {/* <TextDefault style={styles.schemeText}> {schemeId}</TextDefault> */}
@@ -37,7 +51,7 @@ function GoldPlan(props) {
         <View style={styles.bottomSection}>
           <TouchableOpacity
             style={styles.payButton}
-            onPress={() => navigation.navigate('Checkout')}
+            onPress={() => navigation.navigate('KnowMore', { schemeId: schemeId } )}
           >
             <TextDefault style={styles.payButtonText}>Know More</TextDefault>
           </TouchableOpacity>
