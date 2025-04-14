@@ -21,7 +21,6 @@ function Drawer() {
       <NavigationStack.Screen name="TermsandCondition" component={Screen.TermsConditionsPage} />
       <NavigationStack.Screen name="AddNewMember" component={Screen.AddNewMember}/>
       <NavigationStack.Screen name='GoldPlanScreen' component={Screen.GoldPlanScreen}/>
-      <NavigationStack.Screen name='CheckOut' component={Screen.CheckOut}/>
       <NavigationStack.Screen name='OTP' component={Screen.OTP}/>
       <NavigationStack.Screen name='KnowMore' component={Screen.KnowMore}/>
       <NavigationStack.Screen name='Buy' component={Screen.Buy}/>

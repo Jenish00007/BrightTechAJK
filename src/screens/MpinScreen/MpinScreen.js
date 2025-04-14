@@ -37,8 +37,13 @@ function MpinScreen({ route, navigation }) {
     newMpin[index] = value;
     setMpin(newMpin);
 
+    // Move to next box if a digit is entered
     if (value && index < 3) {
       inputRefs.current[index + 1]?.focus();
+    }
+    // Move to previous box if a digit is erased
+    else if (!value && index > 0) {
+      inputRefs.current[index - 1]?.focus();
     }
   };
 
@@ -57,6 +62,21 @@ function MpinScreen({ route, navigation }) {
       navigation.replace('Drawer'); // Navigate to the main landing page
     } catch (error) {
       Alert.alert('Error', 'Failed to save MPIN. Please try again.');
+      console.error(error);
+    }
+  };
+
+  const handleForgotMpin = async () => {
+    try {
+      // Clear existing MPIN and flags
+      await AsyncStorage.removeItem('mpin');
+      await AsyncStorage.removeItem('isMpinCreated');
+      await AsyncStorage.removeItem('isOtpVerified');
+      
+      // Navigate to OTP screen
+      navigation.replace('OTP');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to reset MPIN. Please try again.');
       console.error(error);
     }
   };
@@ -99,7 +119,7 @@ function MpinScreen({ route, navigation }) {
           ))}
         </View>
 
-        <TouchableOpacity>
+        <TouchableOpacity onPress={handleForgotMpin}>
           <TextDefault style={styles.forgotText}>Forgot MPIN</TextDefault>
         </TouchableOpacity>
 
@@ -120,8 +140,13 @@ function VerifyMpinScreen({ navigation }) {
     newMpin[index] = value;
     setMpin(newMpin);
 
+    // Move to next box if a digit is entered
     if (value && index < 3) {
       inputRefs.current[index + 1]?.focus();
+    }
+    // Move to previous box if a digit is erased
+    else if (!value && index > 0) {
+      inputRefs.current[index - 1]?.focus();
     }
   };
 

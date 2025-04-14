@@ -17,6 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function OTP({ navigation }) {
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [isPhoneValid, setIsPhoneValid] = useState(true);
   const [otp, setOtp] = useState(['', '', '', '']);
   const [generatedOtp, setGeneratedOtp] = useState('');
   const [isOtpVisible, setIsOtpVisible] = useState(false);
@@ -25,14 +26,27 @@ function OTP({ navigation }) {
 
   const generateOtp = () => Math.floor(1000 + Math.random() * 9000).toString();
 
+  const handlePhoneChange = (text) => {
+    // Remove any non-digit characters
+    const cleanedText = text.replace(/\D/g, '');
+    
+    // Only allow numbers and limit to 10 digits
+    if (cleanedText.length <= 10) {
+      setPhoneNumber(cleanedText);
+      // Validate if the number starts with 6-9 and is exactly 10 digits
+      setIsPhoneValid(/^[6-9]\d{9}$/.test(cleanedText) || cleanedText.length === 0);
+    }
+  };
+
   const handleSendOtp = async () => {
-    if (!phoneNumber || phoneNumber.length < 10) {
-      Alert.alert('Error', 'Please enter a valid 10-digit phone number.');
+    if (!phoneNumber || !/^[6-9]\d{9}$/.test(phoneNumber)) {
+      Alert.alert('Error', 'Please enter a valid 10-digit Indian mobile number starting with 6-9.');
       return;
     }
 
     const otp = generateOtp();
     setGeneratedOtp(otp);
+    setOtp(['', '', '', '']); // Reset OTP input fields
 
     try {
       const apiUrl = `https://sms.krispal.in/api/smsapi`;
@@ -47,6 +61,13 @@ function OTP({ navigation }) {
 
       await axios.post(apiUrl, null, { params });
       Alert.alert('Success', 'OTP sent successfully!');
+      // Store phone number in AsyncStorage
+      try {
+        await AsyncStorage.setItem('userPhoneNumber', phoneNumber);
+        console.log('Phone number saved in AsyncStorage');
+      } catch (storageError) {
+        console.error('Failed to save phone number to AsyncStorage:', storageError);
+      }
       setIsOtpVisible(true); // Show OTP input after successful OTP generation
     } catch (error) {
       Alert.alert('Error', 'Failed to send OTP. Please try again.');
@@ -57,9 +78,12 @@ function OTP({ navigation }) {
   const handleVerifyOtp = async () => {
     if (otp.join('') === generatedOtp) {
       Alert.alert('Success', 'OTP verification successful!');
-      
+
       try {
-        await AsyncStorage.setItem('isOtpVerified', 'true'); 
+        await AsyncStorage.setItem('isOtpVerified', 'true');
+        // Clear any existing MPIN data
+        await AsyncStorage.removeItem('mpin');
+        await AsyncStorage.removeItem('isMpinCreated');
         navigation.navigate('MpinScreen', { step: 3 });
       } catch (error) {
         Alert.alert('Error', 'Failed to save OTP status. Please try again.');
@@ -69,7 +93,7 @@ function OTP({ navigation }) {
       Alert.alert('Error', 'Invalid OTP. Please try again.');
     }
   };
-  
+
 
   const handleOtpChange = (value, index) => {
     const newOtp = [...otp];
@@ -100,12 +124,22 @@ function OTP({ navigation }) {
         {!isOtpVisible && (
           <>
             <TextDefault style={styles.subtitle1}>Mobile No</TextDefault>
-            <TextInput
-              style={styles.input}
-              keyboardType="phone-pad"
-              value={phoneNumber}
-              onChangeText={setPhoneNumber}
-            />
+            <View style={[styles.inputWrapper, !isPhoneValid && styles.inputError]}>
+              <View style={styles.phoneContainer}>
+                <Text style={styles.countryCode}>+91</Text>
+                <TextInput
+                  style={styles.phoneInput}
+                  keyboardType="numeric"
+                  value={phoneNumber}
+                  onChangeText={handlePhoneChange}
+                  placeholder="Enter 10-digit Mobile Number"
+                  maxLength={10}
+                />
+              </View>
+              {!isPhoneValid && phoneNumber.length > 0 && (
+                <Text style={styles.errorText}>Please enter a valid 10-digit mobile number starting with 6-9</Text>
+              )}
+            </View>
             <TouchableOpacity style={styles.button} onPress={handleSendOtp}>
               <Text style={styles.buttonText}>Verify</Text>
             </TouchableOpacity>
@@ -119,7 +153,7 @@ function OTP({ navigation }) {
               {otp.map((digit, index) => (
                 <TextInput
                   key={index}
-                  ref={(ref) => (inputRefs.current[index] = ref)} // Assign refs to inputs
+                  ref={(ref) => (inputRefs.current[index] = ref)}
                   style={styles.otpInput}
                   keyboardType="numeric"
                   maxLength={1}
@@ -177,23 +211,48 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     ...alignment.PBsmall,
     marginLeft: 45,
-    
+
   },
-  subtitle1:{
+  subtitle1: {
     alignSelf: 'flex-start',
     ...alignment.PBsmall,
     marginLeft: 25,
   },
 
-  input: {
-    height: 60,
+  inputWrapper: {
     width: '90%',
-    borderColor: colors.greenColor,
-    borderWidth: 2,
-    borderRadius: 15,
     marginBottom: 20,
-    paddingHorizontal: 10,
+  },
+  phoneContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: colors.greenColor,
+    borderRadius: 15,
     backgroundColor: colors.backgroudGray,
+  },
+  countryCode: {
+    fontSize: 16,
+    color: colors.greenColor,
+    paddingHorizontal: 10,
+    fontWeight: 'bold',
+  },
+  phoneInput: {
+    flex: 1,
+    height: 60,
+    paddingHorizontal: 10,
+    fontSize: 16,
+  },
+  inputError: {
+    borderColor: colors.yellow,
+    shadowColor: colors.yellow,
+  },
+  errorText: {
+    color: colors.yellow,
+    fontSize: 12,
+    marginTop: 5,
+    marginLeft: 5,
+    fontWeight: '500',
   },
   otpContainer: {
     flexDirection: 'row',
@@ -212,7 +271,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     backgroundColor: colors.grayLinesColor,
     shadowColor: colors.greenColor,
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 6
