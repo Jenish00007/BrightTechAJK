@@ -57,9 +57,9 @@ function Buy() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
+      {/* <View style={styles.header}>
         <Text style={styles.headerText}>Scheme Passbook</Text>
-      </View>
+      </View> */}
 
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Current Buying Rate</Text>

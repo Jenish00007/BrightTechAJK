@@ -31,13 +31,13 @@ const styles = StyleSheet.create({
   profileSection: {
     alignItems: 'center',
     marginBottom: verticalScale(30),
+    marginTop: verticalScale(20),
   },
   profileImage: {
     width: verticalScale(100),
     height: verticalScale(100),
     borderRadius: verticalScale(50),
-    borderWidth: 5,
-    borderColor: colors.greenColor,
+    marginBottom: verticalScale(15),
   },
   editIcon: {
     position: 'absolute', // Keep it absolute for overlay
@@ -48,18 +48,33 @@ const styles = StyleSheet.create({
     padding: scale(5),
   },
   profileName: {
- 
-    fontSize: verticalScale(20),
-    marginTop: verticalScale(10),
-    color: colors.greenColor
+    color: colors.greenColor,
+    marginBottom: verticalScale(5),
+    fontWeight: 'bold',
+  },
+  phoneContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: verticalScale(5),
+  },
+  phoneIcon: {
+    marginRight: scale(8),
+  },
+  phoneNumber: {
+    color: colors.greenColor,
+    fontSize: verticalScale(16),
   },
   settingsSection: {
-    marginTop: verticalScale(-2),
+   
+    borderRadius: verticalScale(10),
+    padding: verticalScale(15),
+    marginBottom: verticalScale(20),
   },
   settingsItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: verticalScale(12),
+    paddingVertical: verticalScale(15),
     borderBottomWidth: 1,
     borderBottomColor: colors.grayLinesColor,
   },

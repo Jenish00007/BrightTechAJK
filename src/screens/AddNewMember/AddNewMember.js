@@ -34,6 +34,7 @@ const AddNewMember = () => {
     const [state, setState] = useState('');
     const [country, setCountry] = useState('India');
     const [mobile, setMobile] = useState('');
+    const [isMobileValid, setIsMobileValid] = useState(true);
     // const [dob, setDob] = useState('');
     const [email, setEmail] = useState('');
     const [panNumber, setPanNumber] = useState('');
@@ -178,42 +179,47 @@ const AddNewMember = () => {
         }
     }, [selectedSchemeId]);
     
-
+console.log(selectedSchemeId, '...............')
     const handleSubmit = async () => {
         if (isSubmitting) {
             console.log('Form is already submitting...');
-            return; // Prevent duplicate submissions
-        }
-    
-        // Start submitting state
-        setIsSubmitting(true);
-    
-        // Mobile number validation (check if it's a valid 10-digit number)
-        if (!/^\d{10}$/.test(mobile)) {
-            console.log('Invalid mobile number:', mobile);
-            alert('Please enter a valid mobile number.');
-            setIsSubmitting(false); // Stop submitting state
             return;
         }
     
-        // Email validation (check if email contains '@' symbol)
+        setIsSubmitting(true);
+
+        // Pincode validation (6 digits)
+        if (!/^\d{6}$/.test(pincode)) {
+            Alert.alert('Error', 'Please enter a valid 6-digit pincode.');
+            setIsSubmitting(false);
+            return;
+        }
+    
+        // Mobile number validation (10 digits, starting with 6-9)
+        if (!/^[6-9]\d{9}$/.test(mobile)) {
+            Alert.alert('Error', 'Please enter a valid 10-digit mobile number starting with 6-9.');
+            setIsSubmitting(false);
+            return;
+        }
+    
+        // PAN number validation (5 uppercase letters, 4 numbers, 1 uppercase letter)
+        if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(panNumber)) {
+            alert('Please enter a valid PAN number (e.g., ABCDE1234F).');
+            setIsSubmitting(false);
+            return;
+        }
+    
+        // Aadhaar validation (12 digits)
+        if (!/^\d{12}$/.test(aadharNumber)) {
+            alert('Please enter a valid 12-digit Aadhaar number.');
+            setIsSubmitting(false);
+            return;
+        }
+
+        // Email validation
         if (!email.includes('@')) {
             alert('Email should contain "@" symbol.');
-            setIsSubmitting(false); // Stop submitting state
-            return;
-        }
-    
-        // PAN number validation (matches the format of PAN card)
-        if (!/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(panNumber)) {
-            alert('PAN number should be 10 characters long.');
-            setIsSubmitting(false); // Stop submitting state
-            return;
-        }
-    
-        // Aadhaar validation (must be a 12-digit number)
-        if (!/^\d{12}$/.test(aadharNumber)) {
-            alert('Aadhaar number should be 12 digits long.');
-            setIsSubmitting(false); // Stop submitting state
+            setIsSubmitting(false);
             return;
         }
     
@@ -666,14 +672,22 @@ const showPicker = () => {
                             keyboardType="numeric"
                         /></View>
                         <Text style={styles.label}>Mobile Number <Text style={styles.asterisk}>*</Text></Text>
-                        <View style={styles.inputWrapper}>
-                        <TextInput
-                            style={styles.input}
-                            onChangeText={setMobile}
-                            value={mobile}
-                            placeholder="Enter Mobile Number"
-                            keyboardType="numeric"
-                        /></View>
+                        <View style={[styles.inputWrapper, !isMobileValid && styles.inputError]}>
+                            <View style={styles.mobileInputContainer}>
+                                <Text style={styles.countryCode}>+91</Text>
+                                <TextInput
+                                    style={[styles.input, styles.mobileInput]}
+                                    onChangeText={handleMobileChange}
+                                    value={mobile}
+                                    placeholder="Enter 10-digit Mobile Number"
+                                    keyboardType="numeric"
+                                    maxLength={10}
+                                />
+                            </View>
+                            {!isMobileValid && mobile.length > 0 && (
+                                <Text style={styles.errorText}>Please enter a valid 10-digit mobile number starting with 6-9</Text>
+                            )}
+                        </View>
                         {renderDatePicker()}
                         <Text style={styles.label}>Email <Text style={styles.asterisk}>*</Text></Text>
                         <View style={styles.inputWrapper}>
@@ -811,6 +825,18 @@ const showPicker = () => {
         }
     };
 
+    const handleMobileChange = (text) => {
+        // Remove any non-digit characters
+        const cleanedText = text.replace(/\D/g, '');
+        
+        // Only allow numbers and limit to 10 digits
+        if (cleanedText.length <= 10) {
+            setMobile(cleanedText);
+            // Validate if the number starts with 6-9 and is exactly 10 digits
+            setIsMobileValid(/^[6-9]\d{9}$/.test(cleanedText) || cleanedText.length === 0);
+        }
+    };
+
     return (
         <ScrollView contentContainerStyle={styles.container}>
             {renderStep()}
@@ -919,9 +945,39 @@ const styles = StyleSheet.create({
         ...alignment.PxSmall
       },
       asterisk: {
-        color: 'red',
+        color: colors.yellow,
         fontSize: 16,
       },
+    mobileInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: colors.greenColor,
+        borderRadius: 10,
+        paddingHorizontal: 10,
+    },
+    countryCode: {
+        fontSize: 16,
+        color: colors.greenColor,
+        marginRight: 5,
+        fontWeight: 'bold',
+    },
+    mobileInput: {
+        flex: 1,
+        borderWidth: 0,
+        marginLeft: 5,
+    },
+    inputError: {
+        borderColor: colors.yellow,
+        shadowColor: colors.yellow,
+    },
+    errorText: {
+        color: colors.yellow,
+        fontSize: 12,
+        marginTop: 5,
+        marginLeft: 5,
+        fontWeight: '500',
+    },
 });
 
 export default AddNewMember;

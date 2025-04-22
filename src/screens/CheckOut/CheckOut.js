@@ -1,7 +1,6 @@
 // TermsConditionsPage.js
 import React from 'react';
 import { Image, ImageBackground, StyleSheet, View,Text } from 'react-native';
-import RazorpayCheckout from 'react-native-razorpay';
 const TermsConditionsPage = () => {
 
     let razorpayKeyId = 'abc'

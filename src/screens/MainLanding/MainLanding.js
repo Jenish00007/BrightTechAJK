@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Animated, Image, View, FlatList, Text, ScrollView, TouchableOpacity, ImageBackground } from 'react-native';
+import { Animated, Image, View, FlatList, Text, ScrollView, TouchableOpacity, ImageBackground, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { BottomTab, TextDefault, Slider } from '../../components';
 import GoldPlan from '../../ui/ProductCard/GoldPlans';
@@ -7,6 +7,7 @@ import ProductCard from '../../ui/ProductCard/ProductCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import styles from './styles';
 import { verticalScale, scale, colors } from '../../utils';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function MainLanding() {
   const navigation = useNavigation();
@@ -15,59 +16,184 @@ function MainLanding() {
   const [schemes, setSchemes] = useState([]);
   const [rateUpdated, setRateUpdated] = useState(null);
 
+  const [phoneSearchData, setPhoneSearchData] = useState([]);
+  const [productData, setProductData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState(true);
+
+  const [error, setError] = useState(null);
+
+  
+  useEffect(() => {
+
+    const fetchPhoneSearchData = async () => {
+      const storedPhoneNumber = await AsyncStorage.getItem('userPhoneNumber');
+      console.log(storedPhoneNumber)
+      try {
+        // Fetch phone search data
+        const phoneResponse = await fetch(`https://jerwishtech.site/v1/api/account/phonesearch?phoneNo=${storedPhoneNumber}`, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          }
+        });
+
+        // Check if response is successful
+        if (!phoneResponse.ok) {
+          throw new Error(`Phone Search HTTP error! status: ${phoneResponse.status}`);
+        }
+
+        const phoneJson = await phoneResponse.json();
+
+        if (phoneJson && phoneJson.length > 0) {
+          setPhoneSearchData(phoneJson);
+
+          // Fetch amount and weight for each item
+          const productPromises = phoneJson.map(async (item) => {
+            try {
+              // Fetch account details for each item
+              const accountResponse = await fetch(`https://jerwishtech.site/v1/api/account?regno=${item.regno}&groupcode=${item.groupcode}`, {
+                method: 'GET',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                }
+              });
+
+              if (!accountResponse.ok) {
+                throw new Error(`Account details HTTP error! status: ${accountResponse.status}`);
+              }
+
+              const accountData = await accountResponse.json();
+
+              const amountWeightResponse = await fetch(
+                `https://jerwishtech.site/v1/api/getAmountWeight?REGNO=${item.regno}&GROUPCODE=${item.groupcode}`,
+                {
+                  method: 'GET',
+                  headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                  }
+                }
+              );
+              
+              // Check if response is successful
+              if (!amountWeightResponse.ok) {
+                throw new Error(`Amount Weight HTTP error! status: ${amountWeightResponse.status}`);
+              }
+
+              const amountWeightJson = await amountWeightResponse.json();
+              
+              // Check if the scheme is active based on maturity date and join date
+              const currentDate = new Date();
+              const maturityDate = new Date(item.maturitydate);
+              const joinDate = new Date(item.joindate);
+              
+              // Determine if the scheme is active
+              const isActive =  maturityDate !== null;
+              const itemStatus = isActive ? 'Active' : 'Deactive';
+              
+              // If deactivated, ensure weight is 0
+              const amountWeight = isActive ? (amountWeightJson[0] || { Weight: 0, Amount: 0 }) : { Weight: 0, Amount: 0 };
+              
+              setStatus(itemStatus);
+              return {
+                ...item,
+                amountWeight: amountWeight,
+                status: itemStatus,
+                accountDetails: accountData
+              };
+            } catch (amountError) {
+              console.error('Error fetching data:', amountError);
+              return {
+                ...item,
+                amountWeight: null,
+                status: 'Deactive',
+                accountDetails: null
+              };
+            }
+          });
+
+          const resolvedProductData = await Promise.all(productPromises);
+
+          // Filter out items with null amountWeight
+          const validProductData = resolvedProductData.filter(item => item.amountWeight !== null);
+
+          setProductData(validProductData);
+          console.log(validProductData)
+          if (validProductData.length === 0) {
+            setError('No valid product data found');
+          }
+        } else {
+          setError('No phone search data available');
+        }
+      } catch (err) {
+        console.error('Detailed fetch error:', err);
+        setError(`Failed fetch data: ${err.message}`);
+
+        // Optional: Show an alert to the user
+        Alert.alert('Fetch Error', `Failed to load data: ${err.message}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPhoneSearchData();
+  }, []);
   // Animation values
   const goldAnimation = useRef(new Animated.Value(0)).current;
   const silverAnimation = useRef(new Animated.Value(0)).current;
 
-// Create animated styles for coins
-const createAnimatedStyle = (animatedValue) => {
-  const rotateY = animatedValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['0deg', '180deg'],
-  });
+  // Create animated styles for coins
+  const createAnimatedStyle = (animatedValue) => {
+    const rotateY = animatedValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: ['0deg', '180deg'],
+    });
 
-  const scale = animatedValue.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 0.9],
-  });
+    const scale = animatedValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [1, 0.9],
+    });
 
-  const opacity = animatedValue.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [1, 0.5, 1],
-  });
+    const opacity = animatedValue.interpolate({
+      inputRange: [0, 0.5, 1],
+      outputRange: [1, 0.5, 1],
+    });
 
-  return {
-    transform: [{ rotateY }, { scale }],
-    opacity,
+    return {
+      transform: [{ rotateY }, { scale }],
+      opacity,
+    };
   };
-};
 
-// Start animations
-useEffect(() => {
-  const animateGold = Animated.loop(
-    Animated.timing(goldAnimation, {
-      toValue: 1,
-      duration: 2000,
-      useNativeDriver: true,
-    })
-  );
+  // Start animations
+  useEffect(() => {
+    const animateGold = Animated.loop(
+      Animated.timing(goldAnimation, {
+        toValue: 1,
+        duration: 2000,
+        useNativeDriver: true,
+      })
+    );
 
-  const animateSilver = Animated.loop(
-    Animated.timing(silverAnimation, {
-      toValue: 1,
-      duration: 2000,
-      useNativeDriver: true,
-    })
-  );
+    const animateSilver = Animated.loop(
+      Animated.timing(silverAnimation, {
+        toValue: 1,
+        duration: 2000,
+        useNativeDriver: true,
+      })
+    );
 
-  animateGold.start();
-  setTimeout(() => animateSilver.start(), 1000);
+    animateGold.start();
+    setTimeout(() => animateSilver.start(), 1000);
 
-  return () => {
-    goldAnimation.stopAnimation();
-    silverAnimation.stopAnimation();
-  };
-}, []);
+    return () => {
+      goldAnimation.stopAnimation();
+      silverAnimation.stopAnimation();
+    };
+  }, []);
 
 
   // Fetch rates
@@ -99,6 +225,7 @@ useEffect(() => {
             description: s.SchemeSName,
           }))
         );
+        //console.log(data)
       } catch (error) {
         console.error('Error fetching schemes:', error);
       }
@@ -151,7 +278,7 @@ useEffect(() => {
                 <Text style={[styles.subtitle, { alignSelf: 'flex-start' }]}>
                   {goldRate ? `₹${goldRate}` : 'Loading...'}
                 </Text>
-                <Text style={styles.subtitle1}>22KT Per gram</Text>
+                <Text style={styles.subtitle1}>22K Per gram</Text>
               </View>
             </View>
 
@@ -188,8 +315,32 @@ useEffect(() => {
               <TextDefault textColor={colors.greenColor} H5 style={styles.seeAllText}>View All</TextDefault>
             </TouchableOpacity>
           </View>
-          <ProductCard styles={styles.itemCardContainer} />
+
+          {/* Horizontal ScrollView for product cards */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false} // Optional: hides the scrollbar
+            style={styles.productScrollContainer}
+          >
+            {productData && productData.length > 0 ? (
+              productData.map((item, index) => (
+                <ProductCard
+                  key={index}  // Unique key for each ProductCard
+                  productData={item}  // Pass individual product data
+                  loading={loading} 
+                  status={status} // Pass loading state
+                  error={error}      // Pass error state
+                  navigation={navigation}  // Pass navigation prop
+                  accountDetails={item.accountDetails}
+                />
+              ))
+            ) : (
+              <TextDefault textColor={colors.redColor}>No Schemes available.</TextDefault> // Handle empty data case
+            )}
+          </ScrollView>
         </View>
+
+
 
         <View style={styles.contentWrapper}>
           <Text style={styles.contentText}>
