@@ -47,6 +47,13 @@ function OTP({ navigation }) {
 
       await axios.post(apiUrl, null, { params });
       Alert.alert('Success', 'OTP sent successfully!');
+      // Store phone number in AsyncStorage
+      try {
+        await AsyncStorage.setItem('userPhoneNumber', phoneNumber); // Save the phone number
+        console.log('Phone number saved in AsyncStorage');
+      } catch (storageError) {
+        console.error('Failed to save phone number to AsyncStorage:', storageError);
+      }
       setIsOtpVisible(true); // Show OTP input after successful OTP generation
     } catch (error) {
       Alert.alert('Error', 'Failed to send OTP. Please try again.');
@@ -57,9 +64,9 @@ function OTP({ navigation }) {
   const handleVerifyOtp = async () => {
     if (otp.join('') === generatedOtp) {
       Alert.alert('Success', 'OTP verification successful!');
-      
+
       try {
-        await AsyncStorage.setItem('isOtpVerified', 'true'); 
+        await AsyncStorage.setItem('isOtpVerified', 'true');
         navigation.navigate('MpinScreen', { step: 3 });
       } catch (error) {
         Alert.alert('Error', 'Failed to save OTP status. Please try again.');
@@ -69,7 +76,7 @@ function OTP({ navigation }) {
       Alert.alert('Error', 'Invalid OTP. Please try again.');
     }
   };
-  
+
 
   const handleOtpChange = (value, index) => {
     const newOtp = [...otp];
@@ -177,9 +184,9 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     ...alignment.PBsmall,
     marginLeft: 45,
-    
+
   },
-  subtitle1:{
+  subtitle1: {
     alignSelf: 'flex-start',
     ...alignment.PBsmall,
     marginLeft: 25,
@@ -212,7 +219,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     backgroundColor: colors.grayLinesColor,
     shadowColor: colors.greenColor,
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
     elevation: 6

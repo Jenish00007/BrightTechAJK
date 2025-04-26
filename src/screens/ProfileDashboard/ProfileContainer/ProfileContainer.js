@@ -52,21 +52,21 @@ function ProfileContainer(props) {
       <ScrollView contentContainerStyle={styles.container}>
         {/* Profile Picture and Name */}
         <View style={styles.profileSection}>
-          <Image source={profileImage} style={styles.profileImage} />
+          {/* <Image source={profileImage} style={styles.profileImage} /> */}
           <TextDefault style={styles.profileName} H4>
-            {'User Name'}
+            {'Menu'}
           </TextDefault>
         </View>
 
         {/* Settings Options */}
         <View style={styles.settingsSection} H5>
           {[ 
-            { label: 'Your Profile', icon: 'account-circle', route: 'EditingProfile' }, // Updated to 'user' icon from FontAwesome
-            { label: 'Delete', icon: 'delete', route: 'DeleteButton' },
+            // { label: 'Your Profile', icon: 'account-circle', route: 'EditingProfile' }, 
             { label: 'My Scheme', icon: 'list', route: 'MyScheme' },
             { label: 'Help Center', icon: 'help', route: 'HelpCenter' },
             { label: 'Privacy Policy', icon: 'security', route: 'PrivacyPolicy' },
             { label: 'Terms and Condition', icon: 'lock', route: 'TermsandCondition' },
+            { label: 'Delete', icon: 'delete', route: 'DeleteButton' },
           ].map((item, index) => (
             <TouchableOpacity
               key={index}
@@ -103,7 +103,7 @@ function ProfileContainer(props) {
           </TouchableOpacity>
         </View>
 
-        <View style={{ height: 300 }} />
+        <View style={{ height: 600 }} />
       </ScrollView>
     </ImageBackground>
   );

@@ -140,9 +140,9 @@ const styles = StyleSheet.create({
     fontSize: scale(16)
   },
   itemCardContainer: {
-    width: scale(308),
+    width: scale(290),
     height: scale(220),
- 
+
     ...alignment.MTsmall,
     ...alignment.MRlarge
   },
@@ -209,14 +209,14 @@ const styles = StyleSheet.create({
   categoryWrapper: {
     alignItems: 'center', // Center align the icon and text
     marginRight: scale(17), // Add some spacing between categories
-    padding: 10,
+    padding: 0,
     marginLeft: scale(-6),
   },
   
 
 
   container: {
-    padding: 15,
+    padding: 5,
     // backgroundColor:Color.colorWhitesmoke_100,
   },
   title: {

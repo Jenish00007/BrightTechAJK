@@ -70,7 +70,7 @@ function GoldPlan(props) {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    margin: scale(5),
+   
     borderRadius: scale(15),
     overflow: 'hidden',
   },
